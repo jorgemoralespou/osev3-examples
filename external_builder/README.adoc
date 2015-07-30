@@ -28,7 +28,7 @@ docker run -it --name builder builder bash -c "/sti/scripts/assemble"
 == Run the wildfly to inject the build
 
 ----
-docker run -it --name wildfly wildfly bash -c "/sti/scripts/copy" 
+docker run -it --name wildfly --volumes-from builder wildfly bash -c "/sti/scripts/copy" 
 ----
 
 == Commit the built container
