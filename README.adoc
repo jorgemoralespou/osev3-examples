@@ -1,1 +1,7 @@
 = OpenShift v3 Examples
+
+This repository contains examples and instructions on how to run applications on OpenShift v3.
+
+You need a running instance of OpenShift v3 to run this examples.
+
+You can clone or fork the repository, or just use the instructions provided in the README files for each example 

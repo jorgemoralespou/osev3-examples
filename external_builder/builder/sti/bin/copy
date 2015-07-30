@@ -1,0 +1,3 @@
+cp -v /sti/deployments/*.?ar /wildfly/standalone/deployments
+cp -v /sti/config/standalone-openshift.xml /wildfly/standalone/configuration
+cp -v -R /sti/modules/* /wildfly/modules

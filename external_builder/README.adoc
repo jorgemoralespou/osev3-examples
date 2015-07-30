@@ -1,0 +1,50 @@
+= Using a container as builder container
+
+This example, shows how we can use a builder container to inject configuration and built artifacts into a wildfly container
+
+We have:
+
+* A wildfly 8.1 container (plain)
+* A builder container to build Maven applications coming from Git and inject them into the Wildfly container
+
+== Steps
+Build the images
+
+----
+cd wildfly
+docker build --rm -t "builder" .
+cd ..
+cd wildfly
+docker build --rm -t "wildfly" .
+cd..
+----
+
+== Run the builder to build the code
+
+----
+docker run -it --name builder builder bash -c "/sti/bin/assemble" 
+----
+
+== Run the wildfly to inject the build
+
+----
+docker run -it --name wildfly wildfly bash -c "/sti/bin/copy" 
+----
+
+== Commit the built container
+
+----
+docker commit -p -c 'CMD ["/wildfly/bin/standalone.sh"]' wildfly wildfly-with-app
+----
+
+== Cleanup
+
+----
+docker rm -vf wildfly builder
+----
+
+== Run your built container with app
+
+----
+docker run -it --rm -P wildfly-with-app
+----

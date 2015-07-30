@@ -1,0 +1,4 @@
+git clone https://github.com/jboss-openshift/openshift-examples /sti/source
+cd /sti/source/helloworld
+mvn clean install -D skipTests -s /.m2/settings.xml
+cp -v /sti/source/helloworld/target/jboss-helloworld.war /sti/deployments
