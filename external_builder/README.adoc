@@ -22,13 +22,13 @@ cd..
 == Run the builder to build the code
 
 ----
-docker run -it --name builder builder bash -c "/sti/bin/assemble" 
+docker run -it --name builder builder bash -c "/sti/scripts/assemble" 
 ----
 
 == Run the wildfly to inject the build
 
 ----
-docker run -it --name wildfly wildfly bash -c "/sti/bin/copy" 
+docker run -it --name wildfly wildfly bash -c "/sti/scripts/copy" 
 ----
 
 == Commit the built container
