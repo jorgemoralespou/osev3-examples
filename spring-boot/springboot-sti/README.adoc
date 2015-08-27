@@ -26,3 +26,16 @@ BUILDER_OPTS="package -Popenshift -DskipTests -Dcom.redhat.xpaas.repo.redhatga"
 BUILDER_OPTS="build -x test"
 ----
 
+== Test in OpenShift
+
+* First load all the needed resources in a project.
+
+----
+oc create -f https://raw.githubusercontent.com/jorgemoralespou/osev3-examples/master/spring-boot/springboot-sti/springboot-sti-all.json
+----
+
+* Once the builder springboot-sti has finished building, you can create an app with:
+
+** Instant app already provided as template
+** Using the springboot-sti builder image using a regular Git repository
+
