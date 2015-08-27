@@ -29,6 +29,7 @@ fi
 ##############################################################################
 
 # Source code provided to STI is at ${HOME}/source
+HOME=/opt/app-root/src
 LOCAL_SOURCE_DIR=${HOME}/source
 mkdir -p $LOCAL_SOURCE_DIR
 
