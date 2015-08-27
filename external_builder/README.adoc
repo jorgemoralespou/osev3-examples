@@ -11,7 +11,7 @@ We have:
 Build the images
 
 ----
-cd wildfly
+cd builder
 docker build --rm -t "builder" .
 cd ..
 cd wildfly
