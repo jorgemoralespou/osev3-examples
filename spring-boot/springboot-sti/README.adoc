@@ -8,22 +8,22 @@ NOTE: If a project has a pom.xml and a build.gradle, maven will take precedence
 
 == ENV Options
 
-* *BUILDER_OPTS*: Allows you to specify options to pass to maven or gradle
+* *BUILDER_ARGS*: Allows you to specify options to pass to maven or gradle
 
 
 == Defaults
-If you do not specify any BUILDER_OPTS, by default the s2i image will use the following:
+If you do not specify any BUILDER_ARGS, by default the s2i image will use the following:
 
 * Maven
 
 ----
-BUILDER_OPTS="package -Popenshift -DskipTests -Dcom.redhat.xpaas.repo.redhatga"
+BUILDER_ARGS="package -Popenshift -DskipTests -Dcom.redhat.xpaas.repo.redhatga"
 ----
 
 * Gradle
 
 ----
-BUILDER_OPTS="build -x test"
+BUILDER_ARGS="build -x test"
 ----
 
 == Test in OpenShift
@@ -39,3 +39,5 @@ oc create -f https://raw.githubusercontent.com/jorgemoralespou/osev3-examples/ma
 ** Instant app already provided as template
 ** Using the springboot-sti builder image using a regular Git repository
 
+== Samples
+There is a lot of example SpringBoot applications https://github.com/spring-projects/spring-boot/tree/master/spring-boot-samples[here]
