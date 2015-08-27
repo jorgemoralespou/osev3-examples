@@ -1,0 +1,28 @@
+== OpenShift S2I Builder for Spring Boot
+This Source-to-Image Builder let's you create projects targetting Spring Boot and built with:
+
+* maven
+* gradle
+
+NOTE: If a project has a pom.xml and a build.gradle, maven will take precedence
+
+== ENV Options
+
+* *BUILDER_OPTS*: Allows you to specify options to pass to maven or gradle
+
+
+== Defaults
+If you do not specify any BUILDER_OPTS, by default the s2i image will use the following:
+
+* Maven
+
+----
+BUILDER_OPTS="package -Popenshift -DskipTests -Dcom.redhat.xpaas.repo.redhatga"
+----
+
+* Gradle
+
+----
+BUILDER_OPTS="build -x test"
+----
+
