@@ -1,0 +1,9 @@
+=
+
+== Project bootstrap
+
+----
+spring init -d=thymeleaf --build=maven -j=1.8 -p=jar --force web
+spring init --build=gradle -j=1.8 -p=jar --force api
+spring init -d=data-rest,redis --build=gradle -j=1.8 -p=jar --force repositories-mem
+----
