@@ -1,7 +1,7 @@
-package com.openshift.evangelists.microservices.data;
+package com.openshift.evangelists.microservices.repository;
 
 import com.openshift.evangelists.microservices.api.MessageRepository;
-import com.openshift.evangelists.microservices.data.data.*;
+import com.openshift.evangelists.microservices.repository.impl.InMemoryMessageRepository;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;

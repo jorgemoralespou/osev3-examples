@@ -1,16 +1,20 @@
-package com.openshift.evangelists.microservices.api;
+package com.openshift.evangelists.microservices.web.api;
 
 /**
  * Created by jmorales on 8/28/15.
  */
 
-import java.util.Calendar;
-
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.Data;
 import org.hibernate.validator.constraints.NotEmpty;
 
+import java.util.Calendar;
+
 /**
- * @author Rob Winch
+ *
  */
+@Data
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Message {
 
     private Long id;

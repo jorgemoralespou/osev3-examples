@@ -1,0 +1,21 @@
+<html xmlns:th="http://www.thymeleaf.org"
+  xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout"
+  layout:decorator="layout">
+  <head>
+    <title>Messages : Error</title>
+  </head>
+  <body>
+    <h1 layout:fragment="header">Messages : Error</h1>
+    <div layout:fragment="content"
+        class="container">
+      <div class="pull-right">
+        <a th:href="@{/}" href="list.html">
+          Messages
+        </a>
+      </div>
+      <div>
+          An Error has ocurred
+      </div>
+    </div>
+  </body>
+</html>
