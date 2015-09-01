@@ -16,7 +16,7 @@ docker build --rm -t "builder" .
 cd ..
 cd wildfly
 docker build --rm -t "wildfly" .
-cd..
+cd ..
 ----
 
 == Run the builder to build the code
