@@ -1,0 +1,433 @@
+{
+   "kind": "Template",
+   "apiVersion": "v1",
+   "metadata": {
+      "name": "springboot-sample-microservices",
+      "annotations": {
+         "description": "Sample Microservice Spring Boot application. There is 2 applications",
+         "iconClass": "icon-jboss",
+         "tags": "instant-app,springboot,maven,java,sample,microservices"
+      }
+   },
+   "labels": {
+      "application": "springboot-sample-microservices",
+      "createdBy": "template-springboot-sample-microservices"
+   },
+   "parameters": [
+      {
+         "description": "The name for the application.",
+         "name": "APPLICATION_NAME",
+         "value": "springbootms"
+      },
+      {
+         "description": "Custom hostname for service routes.  Leave blank for default hostname, e.g.: <application-name>.<project>.<default-domain-suffix>",
+         "name": "APPLICATION_HOSTNAME"
+      },
+      {
+         "description": "Custom hostname for Rest data service routes.  Leave blank for default hostname, e.g.: <application-name>.<project>.<default-domain-suffix>",
+         "name": "APPLICATION_HOSTNAME_DATA"
+      },
+      {
+         "description": "Git source URI for application",
+         "name": "GIT_URI",
+         "value": "https://github.com/jorgemoralespou/osev3-examples.git"
+      },
+      {
+         "description": "Git branch/tag reference",
+         "name": "GIT_REF",
+         "value": "master"
+      },
+      {
+         "description": "Git Directory for Data repository service",
+         "name": "CONTEXT_DIR_WEB",
+         "value": "spring-boot/sample-microservices-springboot/web"
+      },
+      {
+         "description": "Git Directory for web service",
+         "name": "CONTEXT_DIR_DATA",
+         "value": "spring-boot/sample-microservices-springboot/repositories-mem"
+      },
+      {
+         "description": "Github trigger secret",
+         "name": "GITHUB_TRIGGER_SECRET",
+         "from": "[a-zA-Z0-9]{8}",
+         "generate": "expression"
+      },
+      {
+         "description": "Generic build trigger secret",
+         "name": "GENERIC_TRIGGER_SECRET",
+         "from": "[a-zA-Z0-9]{8}",
+         "generate": "expression"
+      }
+   ],
+   "objects": [
+      {
+         "kind": "BuildConfig",
+         "apiVersion": "v1",
+         "metadata": {
+            "name": "${APPLICATION_NAME}-web"
+         },
+         "spec": {
+            "triggers": [
+               {
+                  "type": "GitHub",
+                  "github": {
+                     "secret": "${GITHUB_TRIGGER_SECRET}"
+                  }
+               },
+               {
+                  "type": "Generic",
+                  "generic": {
+                     "secret": "${GENERIC_TRIGGER_SECRET}"
+                  }
+               },
+               {
+                  "type": "ImageChange",
+                  "imageChange": {}
+               }
+            ],
+            "source": {
+               "type": "Git",
+               "git": {
+                  "uri": "${GIT_URI}",
+                  "ref": "${GIT_REF}"
+               },
+               "contextDir": "${CONTEXT_DIR_WEB}"
+            },
+            "strategy": {
+               "type": "Source",
+               "sourceStrategy": {
+                  "from": {
+                     "kind": "ImageStreamTag",
+                     "name": "springboot-sti:latest"
+                  }
+               }
+            },
+            "output": {
+               "to": {
+                  "kind": "ImageStreamTag",
+                  "name": "${APPLICATION_NAME}-web:latest"
+               }
+            },
+            "resources": {}
+         }
+      },
+      {
+         "kind": "BuildConfig",
+         "apiVersion": "v1",
+         "metadata": {
+            "name": "${APPLICATION_NAME}-data"
+         },
+         "spec": {
+            "triggers": [
+               {
+                  "type": "GitHub",
+                  "github": {
+                     "secret": "${GITHUB_TRIGGER_SECRET}"
+                  }
+               },
+               {
+                  "type": "Generic",
+                  "generic": {
+                     "secret": "${GENERIC_TRIGGER_SECRET}"
+                  }
+               },
+               {
+                  "type": "ImageChange",
+                  "imageChange": {}
+               }
+            ],
+            "source": {
+               "type": "Git",
+               "git": {
+                  "uri": "${GIT_URI}",
+                  "ref": "${GIT_REF}"
+               },
+               "contextDir": "${CONTEXT_DIR_DATA}"
+            },
+            "strategy": {
+               "type": "Source",
+               "sourceStrategy": {
+                  "from": {
+                     "kind": "ImageStreamTag",
+                     "name": "springboot-sti:latest"
+                  }
+               }
+            },
+            "output": {
+               "to": {
+                  "kind": "ImageStreamTag",
+                  "name": "${APPLICATION_NAME}-data:latest"
+               }
+            },
+            "resources": {}
+         }
+      },
+      {
+         "kind": "ImageStream",
+         "apiVersion": "v1",
+         "metadata": {
+            "name": "${APPLICATION_NAME}-web"
+         },
+         "spec": {
+            "dockerImageRepository": "",
+            "tags": [
+               {
+                  "name": "latest"
+               }
+            ]
+         }
+      },
+      {
+         "kind": "ImageStream",
+         "apiVersion": "v1",
+         "metadata": {
+            "name": "${APPLICATION_NAME}-data"
+         },
+         "spec": {
+            "dockerImageRepository": "",
+            "tags": [
+               {
+                  "name": "latest"
+               }
+            ]
+         }
+      },
+      {
+         "kind": "DeploymentConfig",
+         "apiVersion": "v1",
+         "metadata": {
+            "name": "${APPLICATION_NAME}-web"
+         },
+         "spec": {
+            "strategy": {
+               "type": "Rolling",
+               "rollingParams": {
+                  "updatePeriodSeconds": 1,
+                  "intervalSeconds": 1,
+                  "timeoutSeconds": 600
+               },
+               "resources": {}
+            },
+            "triggers": [
+               {
+                  "type": "ConfigChange"
+               },
+               {
+                  "type": "ImageChange",
+                  "imageChangeParams": {
+                     "automatic": true,
+                     "containerNames": [
+                        "${APPLICATION_NAME}-web"
+                     ],
+                     "from": {
+                        "kind": "ImageStreamTag",
+                        "name": "${APPLICATION_NAME}-web:latest"
+                     }
+                  }
+               }
+            ],
+            "replicas": 1,
+            "selector": {
+               "deploymentconfig": "${APPLICATION_NAME}-web"
+            },
+            "template": {
+               "metadata": {
+                  "labels": {
+                     "deploymentconfig": "${APPLICATION_NAME}-web"
+                  }
+               },
+               "spec": {
+                  "containers": [
+                     {
+                        "name": "${APPLICATION_NAME}-web",
+                        "image": "${APPLICATION_NAME}-web",
+                        "ports": [
+                           {
+                              "containerPort": 8080,
+                              "protocol": "TCP"
+                           }
+                        ],
+                        "env": [
+                           {
+                              "name": "APP_OPTIONS",
+                              "value": "--remoteHost=${APPLICATION_NAME}-data --remotePort=8080 --server.port=8080"
+                           }
+                        ],
+                        "livenessProbe": {
+                           "tcpSocket": {
+                              "port": 8080
+                           },
+                           "initialDelaySeconds": 30,
+                           "timeoutSeconds": 1
+                        },
+                        "resources": {},
+                        "terminationMessagePath": "/dev/termination-log",
+                        "imagePullPolicy": "IfNotPresent",
+                        "securityContext": {
+                           "capabilities": {},
+                           "privileged": false
+                        }
+                     }
+                  ],
+                  "restartPolicy": "Always",
+                  "dnsPolicy": "ClusterFirst"
+               }
+            }
+         }
+      },
+      {
+         "kind": "DeploymentConfig",
+         "apiVersion": "v1",
+         "metadata": {
+            "name": "${APPLICATION_NAME}-data"
+         },
+         "spec": {
+            "strategy": {
+               "type": "Rolling",
+               "rollingParams": {
+                  "updatePeriodSeconds": 1,
+                  "intervalSeconds": 1,
+                  "timeoutSeconds": 600
+               },
+               "resources": {}
+            },
+            "triggers": [
+               {
+                  "type": "ConfigChange"
+               },
+               {
+                  "type": "ImageChange",
+                  "imageChangeParams": {
+                     "automatic": true,
+                     "containerNames": [
+                        "${APPLICATION_NAME}-data"
+                     ],
+                     "from": {
+                        "kind": "ImageStreamTag",
+                        "name": "${APPLICATION_NAME}-data:latest"
+                     }
+                  }
+               }
+            ],
+            "replicas": 1,
+            "selector": {
+               "deploymentconfig": "${APPLICATION_NAME}-data"
+            },
+            "template": {
+               "metadata": {
+                  "labels": {
+                     "deploymentconfig": "${APPLICATION_NAME}-data"
+                  }
+               },
+               "spec": {
+                  "containers": [
+                     {
+                        "name": "${APPLICATION_NAME}-data",
+                        "image": "${APPLICATION_NAME}-data",
+                        "ports": [
+                           {
+                              "containerPort": 8080,
+                              "protocol": "TCP"
+                           }
+                        ],
+                        "env": [
+                           {
+                              "name": "APP_OPTIONS",
+                              "value": "--server.port=8080"
+                           }
+                        ],
+                        "livenessProbe": {
+                           "tcpSocket": {
+                              "port": 8080
+                           },
+                           "initialDelaySeconds": 30,
+                           "timeoutSeconds": 1
+                        },
+                        "resources": {},
+                        "terminationMessagePath": "/dev/termination-log",
+                        "imagePullPolicy": "IfNotPresent",
+                        "securityContext": {
+                           "capabilities": {},
+                           "privileged": false
+                        }
+                     }
+                  ],
+                  "restartPolicy": "Always",
+                  "dnsPolicy": "ClusterFirst"
+               }
+            }
+         }
+      },
+      {
+         "kind": "Route",
+         "apiVersion": "v1",
+         "metadata": {
+            "name": "${APPLICATION_NAME}-web"
+         },
+         "spec": {
+            "host": "${APPLICATION_HOSTNAME}",
+            "to": {
+               "kind": "Service",
+               "name": "${APPLICATION_NAME}-web"
+            }
+         }
+      },
+      {
+         "kind": "Route",
+         "apiVersion": "v1",
+         "metadata": {
+            "name": "${APPLICATION_NAME}-data"
+         },
+         "spec": {
+            "host": "${APPLICATION_HOSTNAME_DATA}",
+            "to": {
+               "kind": "Service",
+               "name": "${APPLICATION_NAME}-data"
+            }
+         }
+      },
+      {
+         "kind": "Service",
+         "apiVersion": "v1",
+         "metadata": {
+            "name": "${APPLICATION_NAME}-web"
+         },
+         "spec": {
+            "ports": [
+               {
+                  "name": "${APPLICATION_NAME}-web",
+                  "port": 8080,
+                  "targetPort": 8080
+               }
+            ],
+            "selector": {
+               "deploymentconfig": "${APPLICATION_NAME}-web"
+            },
+            "type": "ClusterIP",
+            "sessionAffinity": "None"
+         }
+      },
+      {
+         "kind": "Service",
+         "apiVersion": "v1",
+         "metadata": {
+            "name": "${APPLICATION_NAME}-data"
+         },
+         "spec": {
+            "ports": [
+               {
+                  "name": "${APPLICATION_NAME}-data",
+                  "port": 8080,
+                  "targetPort": 8080
+               }
+            ],
+            "selector": {
+               "deploymentconfig": "${APPLICATION_NAME}-data"
+            },
+            "type": "ClusterIP",
+            "sessionAffinity": "None"
+         }
+      }
+   ]
+}
