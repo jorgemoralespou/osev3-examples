@@ -1,9 +1,45 @@
 =
 
-== Project bootstrap
+== Build the project
+Building the project will create 2 applications (jars)
+
+* web.jar
+* repositories-mem.jar
 
 ----
-spring init -d=thymeleaf --build=maven -j=1.8 -p=jar --force web
-spring init --build=gradle -j=1.8 -p=jar --force api
-spring init -d=data-rest,redis --build=gradle -j=1.8 -p=jar --force repositories-mem
+mvn clean package
+----
+
+== Running the applications
+Run in 2 consoles:
+
+----
+java -jar web/target/web.jar --remoteHost=localhost --remotePort=9091 --server.port=8091
+----
+
+and
+
+----
+java -jar repositories-mem/target/repositories-mem.jar --server.port=9091
+----
+
+== Test the applications
+You can test the applications either by going into the console at, which will use application *web* or use direcly the Rest interface on application *repository-mem*.
+
+Some examples:
+
+Web interface:
+
+----
+http://localhost:8091
+----
+
+Rest commands:
+
+----
+ADD ONE: curl  -H "Content-type: application/json" -X POST -d '{"id":10,"text":"AAAA","summary":"BBBB"}'  http://localhost:9091/
+MODIFY ONE : curl  -H "Content-type: application/json" -X PUT -d '{"id":10,"text":"aaaaa","summary":"bbbbb"}'  http://localhost:9091/10
+GET ALL: curl http://localhost:9091/
+GET ONE: curl http://localhost:9091/1
+DELETE ONE: curl -X DELETE http://localhost:9091/10
 ----
