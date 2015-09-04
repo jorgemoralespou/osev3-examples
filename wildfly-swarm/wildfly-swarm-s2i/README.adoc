@@ -34,7 +34,7 @@ BUILDER_ARGS="build -x test"
 oc create -f https://raw.githubusercontent.com/jorgemoralespou/osev3-examples/master/wildfly-swarm/wildfly-swarm-s2i/wildfly-swarm-s2i-all.json
 ----
 
-* Once the builder wildfly-swarm-cws2isti has finished building, you can create an app with:
+* Once the builder wildfly-swarm-s2i has finished building, you can create an app with:
 
 ** Instant app already provided as template
 ** Using the wildfly-swarm-s2i builder image using a regular Git repository

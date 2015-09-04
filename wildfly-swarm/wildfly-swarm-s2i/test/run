@@ -143,5 +143,5 @@ wait_for_cid
 test_connection
 check_result $?
 
-# cleanup
+cleanup
 
