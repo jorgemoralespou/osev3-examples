@@ -1,0 +1,567 @@
+{
+   "kind": "List",
+   "apiVersion": "v1",
+   "metadata": {
+      "name": "wildfly-swarm-s2i"
+   },
+   "items": [
+      {
+         "kind": "BuildConfig",
+         "apiVersion": "v1",
+         "metadata": {
+            "name": "wildfly-swarm-s2i"
+         },
+         "spec": {
+            "triggers": [
+               {
+                  "type": "GitHub",
+                  "github": {
+                     "secret": "secret"
+                  }
+               },
+               {
+                  "type": "Generic",
+                  "generic": {
+                     "secret": "secret"
+                  }
+               },
+               {
+                  "type": "ImageChange",
+                  "imageChange": {}
+               }
+            ],
+            "source": {
+               "type": "Git",
+               "git": {
+                  "uri": "https://github.com/jorgemoralespou/osev3-examples.git",
+                  "ref": "master"
+               },
+               "contextDir": "wildfly-swarm/wildfly-swarm-s2i"
+            },
+            "strategy": {
+               "type": "Docker",
+               "dockerStrategy": {
+                  "from": {
+                     "kind": "ImageStreamTag",
+                     "name": "centos:centos7"
+                  }
+               }
+            },
+            "output": {
+               "to": {
+                  "kind": "ImageStreamTag",
+                  "name": "wildfly-swarm-s2i:latest"
+               }
+            },
+            "resources": {}
+         }
+      },
+      {
+         "kind": "ImageStream",
+         "apiVersion": "v1",
+         "metadata": {
+            "name": "centos"
+         },
+         "spec": {
+            "dockerImageRepository": "library/centos:centos7"
+         }
+      },
+      {
+         "kind": "ImageStream",
+         "apiVersion": "v1",
+         "metadata": {
+            "name": "wildfly-swarm-s2i"
+         },
+         "spec": {
+            "dockerImageRepository": "",
+            "tags": [
+               {
+                  "name": "latest",
+                  "annotations": {
+                     "description": "Wildfly Swarm S2I image",
+                     "iconClass": "icon-jboss",
+                     "tags": "builder,wildfly-swarm,java,maven,gradle",
+                     "supports": "wildfly-swarm,java:8,maven:3,gradle:2.6",
+                     "version": "1.0"
+                  }
+               }
+            ]
+         }
+      },
+      {
+         "kind": "Template",
+         "apiVersion": "v1",
+         "metadata": {
+            "name": "wildfly-swarm-helloworld-maven",
+            "annotations": {
+               "description": "Sample Wildfly Swarm helloworld built with maven",
+               "iconClass": "icon-jboss",
+               "tags": "instant-app,wildfly-swarm,maven,java"
+            }
+
+         },
+         "labels": {
+            "application": "wildfly-swarm-helloworld-maven",
+            "createdBy": "template-wildfly-swarm-helloworld-maven"
+         },
+         "parameters": [
+            {
+               "description": "The name for the application.",
+               "name": "APPLICATION_NAME",
+               "value": "helloworld-mvn"
+            },
+            {
+               "description": "Custom hostname for service routes.  Leave blank for default hostname, e.g.: <application-name>.<project>.<default-domain-suffix>",
+               "name": "APPLICATION_HOSTNAME"
+            },
+            {
+               "description": "Git source URI for application",
+               "name": "GIT_URI",
+               "value": "https://github.com/jorgemoralespou/osev3-examples.git"
+            },
+            {
+               "description": "Git branch/tag reference",
+               "name": "GIT_REF",
+               "value": "master"
+            },
+            {
+               "description": "Git Directory",
+               "name": "CONTEXT_DIR",
+               "value": "wildfly-swarm/wildfly-swarm-s2i/test/test-app-maven"
+            },
+            {
+               "description": "Application options. These options will be passed to the Wildfly Swarm command line",
+               "name": "APP_OPTIONS"
+            },
+            {
+               "description": "Github trigger secret",
+               "name": "GITHUB_TRIGGER_SECRET",
+               "from": "[a-zA-Z0-9]{8}",
+               "generate": "expression"
+            },
+            {
+               "description": "Generic build trigger secret",
+               "name": "GENERIC_TRIGGER_SECRET",
+               "from": "[a-zA-Z0-9]{8}",
+               "generate": "expression"
+            }
+         ],
+         "objects": [
+            {
+               "kind": "BuildConfig",
+               "apiVersion": "v1",
+               "metadata": {
+                  "name": "${APPLICATION_NAME}"
+               },
+               "spec": {
+                  "triggers": [
+                     {
+                        "type": "GitHub",
+                        "github": {
+                           "secret": "${GITHUB_TRIGGER_SECRET}"
+                        }
+                     },
+                     {
+                        "type": "Generic",
+                        "generic": {
+                           "secret": "${GENERIC_TRIGGER_SECRET}"
+                        }
+                     },
+                     {
+                        "type": "ImageChange",
+                        "imageChange": {}
+                     }
+                  ],
+                  "source": {
+                     "type": "Git",
+                     "git": {
+                        "uri": "${GIT_URI}",
+                        "ref": "${GIT_REF}"
+                     },
+                     "contextDir": "${CONTEXT_DIR}"
+                  },
+                  "strategy": {
+                     "type": "Source",
+                     "sourceStrategy": {
+                        "from": {
+                           "kind": "ImageStreamTag",
+                           "name": "wildfly-swarm-s2i:latest"
+                        }
+                     }
+                  },
+                  "output": {
+                     "to": {
+                        "kind": "ImageStreamTag",
+                        "name": "${APPLICATION_NAME}:latest"
+                     }
+                  },
+                  "resources": {}
+               }
+            },
+            {
+               "kind": "ImageStream",
+               "apiVersion": "v1",
+               "metadata": {
+                  "name": "${APPLICATION_NAME}"
+               },
+               "spec": {
+                  "dockerImageRepository": "",
+                  "tags": [
+                     {
+                        "name": "latest"
+                     }
+                  ]
+               }
+            },
+            {
+               "kind": "DeploymentConfig",
+               "apiVersion": "v1",
+               "metadata": {
+                  "name": "${APPLICATION_NAME}"
+               },
+               "spec": {
+                  "strategy": {
+                     "type": "Rolling",
+                     "rollingParams": {
+                        "updatePeriodSeconds": 1,
+                        "intervalSeconds": 1,
+                        "timeoutSeconds": 600
+                     },
+                     "resources": {}
+                  },
+                  "triggers": [
+                     {
+                        "type": "ConfigChange"
+                     },
+                     {
+                        "type": "ImageChange",
+                        "imageChangeParams": {
+                           "automatic": true,
+                           "containerNames": [
+                              "${APPLICATION_NAME}"
+                           ],
+                           "from": {
+                              "kind": "ImageStreamTag",
+                              "name": "${APPLICATION_NAME}:latest"
+                           }
+                        }
+                     }
+                  ],
+                  "replicas": 1,
+                  "selector": {
+                     "deploymentconfig": "${APPLICATION_NAME}"
+                  },
+                  "template": {
+                     "metadata": {
+                        "labels": {
+                           "deploymentconfig": "${APPLICATION_NAME}"
+                        }
+                     },
+                     "spec": {
+                        "containers": [
+                           {
+                              "name": "${APPLICATION_NAME}",
+                              "image": "${APPLICATION_NAME}",
+                              "ports": [
+                                 {
+                                    "containerPort": 8080,
+                                    "protocol": "TCP"
+                                 }
+                              ],
+                              "livenessProbe": {
+                                 "tcpSocket": {
+                                    "port": 8080
+                                 },
+                                 "initialDelaySeconds": 30,
+                                 "timeoutSeconds": 1
+                              },
+                              "resources": {},
+                              "terminationMessagePath": "/dev/termination-log",
+                              "imagePullPolicy": "IfNotPresent",
+                              "securityContext": {
+                                 "capabilities": {},
+                                 "privileged": false
+                              }
+                           }
+                        ],
+                        "restartPolicy": "Always",
+                        "dnsPolicy": "ClusterFirst"
+                     }
+                  }
+               }
+            },
+            {
+               "kind": "Route",
+               "apiVersion": "v1",
+               "metadata": {
+                  "name": "${APPLICATION_NAME}"
+               },
+               "spec": {
+                  "host": "${APPLICATION_HOSTNAME}",
+                  "to": {
+                     "kind": "Service",
+                     "name": "${APPLICATION_NAME}"
+                  }
+               }
+            },
+            {
+               "kind": "Service",
+               "apiVersion": "v1",
+               "metadata": {
+                  "name": "${APPLICATION_NAME}"
+               },
+               "spec": {
+                  "ports": [
+                     {
+                        "name": "${APPLICATION_NAME}-http",
+                        "port": 8080,
+                        "targetPort": 8080
+                     }
+                  ],
+                  "selector": {
+                     "deploymentconfig": "${APPLICATION_NAME}"
+                  },
+                  "type": "ClusterIP",
+                  "sessionAffinity": "None"
+               }
+            }
+         ]
+      },
+      {
+         "kind": "Template",
+         "apiVersion": "v1",
+         "metadata": {
+            "name": "wildfly-swarm-helloworld-gradle",
+            "annotations": {
+               "description": "Sample Wildfly Swarm helloworld built with gradle",
+               "iconClass": "icon-jboss",
+               "tags": "instant-app,wildfly-swarm,gradle,java"
+            }
+
+         },
+         "labels": {
+            "application": "wildfly-swarm-helloworld-gradle",
+            "createdBy": "template-wildfly-swarm-helloworld-gradle"
+         },
+         "parameters": [
+            {
+               "description": "The name for the application.",
+               "name": "APPLICATION_NAME",
+               "value": "helloworld-gradle"
+            },
+            {
+               "description": "Custom hostname for service routes.  Leave blank for default hostname, e.g.: <application-name>.<project>.<default-domain-suffix>",
+               "name": "APPLICATION_HOSTNAME"
+            },
+            {
+               "description": "Git source URI for application",
+               "name": "GIT_URI",
+               "value": "https://github.com/jorgemoralespou/osev3-examples.git"
+            },
+            {
+               "description": "Git branch/tag reference",
+               "name": "GIT_REF",
+               "value": "master"
+            },
+            {
+               "description": "Git Directory",
+               "name": "CONTEXT_DIR",
+               "value": "wildfly-swarm/wildfly-swarm-s2i/test/test-app-gradle"
+            },
+            {
+               "description": "Github trigger secret",
+               "name": "GITHUB_TRIGGER_SECRET",
+               "from": "[a-zA-Z0-9]{8}",
+               "generate": "expression"
+            },
+            {
+               "description": "Generic build trigger secret",
+               "name": "GENERIC_TRIGGER_SECRET",
+               "from": "[a-zA-Z0-9]{8}",
+               "generate": "expression"
+            }
+         ],
+         "objects": [
+            {
+               "kind": "BuildConfig",
+               "apiVersion": "v1",
+               "metadata": {
+                  "name": "${APPLICATION_NAME}"
+               },
+               "spec": {
+                  "triggers": [
+                     {
+                        "type": "GitHub",
+                        "github": {
+                           "secret": "${GITHUB_TRIGGER_SECRET}"
+                        }
+                     },
+                     {
+                        "type": "Generic",
+                        "generic": {
+                           "secret": "${GENERIC_TRIGGER_SECRET}"
+                        }
+                     },
+                     {
+                        "type": "ImageChange",
+                        "imageChange": {}
+                     }
+                  ],
+                  "source": {
+                     "type": "Git",
+                     "git": {
+                        "uri": "${GIT_URI}",
+                        "ref": "${GIT_REF}"
+                     },
+                     "contextDir": "${CONTEXT_DIR}"
+                  },
+                  "strategy": {
+                     "type": "Source",
+                     "sourceStrategy": {
+                        "from": {
+                           "kind": "ImageStreamTag",
+                           "name": "wildfly-swarm-s2i:latest"
+                        }
+                     }
+                  },
+                  "output": {
+                     "to": {
+                        "kind": "ImageStreamTag",
+                        "name": "${APPLICATION_NAME}:latest"
+                     }
+                  },
+                  "resources": {}
+               }
+            },
+            {
+               "kind": "ImageStream",
+               "apiVersion": "v1",
+               "metadata": {
+                  "name": "${APPLICATION_NAME}"
+               },
+               "spec": {
+                  "dockerImageRepository": "",
+                  "tags": [
+                     {
+                        "name": "latest"
+                     }
+                  ]
+               }
+            },
+            {
+               "kind": "DeploymentConfig",
+               "apiVersion": "v1",
+               "metadata": {
+                  "name": "${APPLICATION_NAME}"
+               },
+               "spec": {
+                  "strategy": {
+                     "type": "Rolling",
+                     "rollingParams": {
+                        "updatePeriodSeconds": 1,
+                        "intervalSeconds": 1,
+                        "timeoutSeconds": 600
+                     },
+                     "resources": {}
+                  },
+                  "triggers": [
+                     {
+                        "type": "ConfigChange"
+                     },
+                     {
+                        "type": "ImageChange",
+                        "imageChangeParams": {
+                           "automatic": true,
+                           "containerNames": [
+                              "${APPLICATION_NAME}"
+                           ],
+                           "from": {
+                              "kind": "ImageStreamTag",
+                              "name": "${APPLICATION_NAME}:latest"
+                           }
+                        }
+                     }
+                  ],
+                  "replicas": 1,
+                  "selector": {
+                     "deploymentconfig": "${APPLICATION_NAME}"
+                  },
+                  "template": {
+                     "metadata": {
+                        "labels": {
+                           "deploymentconfig": "${APPLICATION_NAME}"
+                        }
+                     },
+                     "spec": {
+                        "containers": [
+                           {
+                              "name": "${APPLICATION_NAME}",
+                              "image": "${APPLICATION_NAME}",
+                              "ports": [
+                                 {
+                                    "containerPort": 8080,
+                                    "protocol": "TCP"
+                                 }
+                              ],
+                              "livenessProbe": {
+                                 "tcpSocket": {
+                                    "port": 8080
+                                 },
+                                 "initialDelaySeconds": 30,
+                                 "timeoutSeconds": 1
+                              },
+                              "resources": {},
+                              "terminationMessagePath": "/dev/termination-log",
+                              "imagePullPolicy": "IfNotPresent",
+                              "securityContext": {
+                                 "capabilities": {},
+                                 "privileged": false
+                              }
+                           }
+                        ],
+                        "restartPolicy": "Always",
+                        "dnsPolicy": "ClusterFirst"
+                     }
+                  }
+               }
+            },
+            {
+               "kind": "Route",
+               "apiVersion": "v1",
+               "metadata": {
+                  "name": "${APPLICATION_NAME}"
+               },
+               "spec": {
+                  "host": "${APPLICATION_HOSTNAME}",
+                  "to": {
+                     "kind": "Service",
+                     "name": "${APPLICATION_NAME}"
+                  }
+               }
+            },
+            {
+               "kind": "Service",
+               "apiVersion": "v1",
+               "metadata": {
+                  "name": "${APPLICATION_NAME}"
+               },
+               "spec": {
+                  "ports": [
+                     {
+                        "name": "${APPLICATION_NAME}-http",
+                        "port": 8080,
+                        "targetPort": 8080
+                     }
+                  ],
+                  "selector": {
+                     "deploymentconfig": "${APPLICATION_NAME}"
+                  },
+                  "type": "ClusterIP",
+                  "sessionAffinity": "None"
+               }
+            }
+         ]
+      }
+
+   ]
+}

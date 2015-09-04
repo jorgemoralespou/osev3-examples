@@ -1,0 +1,15 @@
+== Sample Wildfly Swarm Helloworld
+
+This sample application shows a helloworld message in http://localhost:8080 
+
+It can be built using maven:
+
+----
+mvn package
+----
+
+And run with:
+
+----
+java -jar [build/libs|target]/helloworld.jar
+----

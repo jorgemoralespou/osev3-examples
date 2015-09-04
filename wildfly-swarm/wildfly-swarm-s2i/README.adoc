@@ -1,0 +1,43 @@
+== OpenShift S2I Builder for Wildfly Swarm
+This Source-to-Image Builder let's you create projects targetting Wildfly Swarm and built with:
+
+* maven
+* gradle
+
+NOTE: If a project has a pom.xml and a build.gradle, maven will take precedence
+
+== ENV Options
+
+* *BUILDER_ARGS*: Allows you to specify options to pass to maven or gradle
+
+
+== Defaults
+If you do not specify any BUILDER_ARGS, by default the s2i image will use the following:
+
+* Maven
+
+----
+BUILDER_ARGS="package -Popenshift -DskipTests -Dcom.redhat.xpaas.repo.redhatga"
+----
+
+* Gradle
+
+----
+BUILDER_ARGS="build -x test"
+----
+
+== Test in OpenShift
+
+* First load all the needed resources in a project.
+
+----
+oc create -f https://raw.githubusercontent.com/jorgemoralespou/osev3-examples/master/wildfly-swarm/wildfly-swarm-s2i/wildfly-swarm-s2i-all.json
+----
+
+* Once the builder wildfly-swarm-cws2isti has finished building, you can create an app with:
+
+** Instant app already provided as template
+** Using the wildfly-swarm-s2i builder image using a regular Git repository
+
+== Samples
+There is a lot of example Wildfly Swarm applications https://github.com/wildfly-swarm/wildfly-swarm-examples[here]
