@@ -17,15 +17,22 @@
       {
          "description": "The name for the application.",
          "name": "APPLICATION_NAME",
-         "value": "springbootms"
+         "value": "springbootms",
+         "displayName": "Application name",
+         "required": true
       },
       {
          "description": "Custom hostname for service routes.  Leave blank for default hostname, e.g.: <application-name>.<project>.<default-domain-suffix>",
-         "name": "APPLICATION_HOSTNAME"
+         "name": "APPLICATION_HOSTNAME",
+         "displayName": "Application hostname for web component",
+         "required": true
+
       },
       {
          "description": "Custom hostname for Rest data service routes.  Leave blank for default hostname, e.g.: <application-name>.<project>.<default-domain-suffix>",
-         "name": "APPLICATION_HOSTNAME_DATA"
+         "name": "APPLICATION_HOSTNAME_DATA",
+         "displayName": "Application hostname for data component",
+         "required": true
       },
       {
          "description": "Git source URI for application",

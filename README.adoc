@@ -5,3 +5,10 @@ This repository contains examples and instructions on how to run applications on
 You need a running instance of OpenShift v3 to run this examples.
 
 You can clone or fork the repository, or just use the instructions provided in the README files for each example 
+
+
+You can create everything as cluster-admin with:
+
+----
+oc create -f https://raw.githubusercontent.com/jorgemoralespou/osev3-examples/master/all-in-v3.json
+----
