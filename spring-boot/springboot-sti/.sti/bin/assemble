@@ -111,9 +111,13 @@ elif [ -f "$LOCAL_SOURCE_DIR/build.gradle" ]; then
   # to the $DEPLOY_DIR directory for later deployment
   copy_artifacts build/libs
 
+  if [ -z "$CLEAN_ARGS" ]; then
+    export CLEAN_ARGS="clean"
+    # TODO: Specify setting file with -c sss
+  fi
 
   # clean up after maven
-  gradle clean
+  gradle $CLEAN_ARGS
 #  if [ -d "$HOME/.m2/repository" ]; then
 #    rm -r "$HOME/.m2/repository"
 #  fi
