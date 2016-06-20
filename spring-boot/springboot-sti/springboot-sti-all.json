@@ -43,7 +43,7 @@
                "dockerStrategy": {
                   "from": {
                      "kind": "ImageStreamTag",
-                     "name": "centos:centos7"
+                     "name": "centos:7"
                   }
                }
             },
