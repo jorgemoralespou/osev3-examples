@@ -33,7 +33,7 @@
             "source": {
                "type": "Git",
                "git": {
-                  "uri": "https://github.com/jorgemoralespou/osev3-examples.git",
+                  "uri": "https://github.com/iceman91176/osev3-examples.git",
                   "ref": "master"
                },
                "contextDir": "spring-boot/springboot-sti"
@@ -43,7 +43,8 @@
                "dockerStrategy": {
                   "from": {
                      "kind": "ImageStreamTag",
-                     "name": "centos:7"
+                     "name": "centos:centos7",
+                     "namespace": "openshift"
                   }
                }
             },
